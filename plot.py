@@ -35,7 +35,7 @@ def load_checkpoint(btdir):
 
 
 
-def imshow_database(database):
+def imshow_database(database, database1):
     import matplotlib.pyplot as plt
     from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -44,16 +44,19 @@ def imshow_database(database):
     div1 = make_axes_locatable(ax1)
     cax1 = div1.append_axes('right', size='5%', pad=0.05)
 
-    for key, patch in database.items():
+    for i in database:
 
-        R = patch['vert_coords'][:,:,0]
-        Q = patch['vert_coords'][:,:,1]
-        D = patch['primitive'][:,:,0]
-        V = patch['primitive'][:,:,1]
+        R = database[i]['vert_coords'][:,:,0]
+        Q = database[i]['vert_coords'][:,:,1]
+        D = database[i]['conserved'][:,:,0]
+        V = database[i]['conserved'][:,:,1]
+
+        D1 = database1[i]['conserved'][:,:,0]
+
         X = R * np.cos(Q)
         Y = R * np.sin(Q)
 
-        im1 = ax1.pcolormesh(Y, X, D, edgecolor='none', lw=0.5)
+        im1 = ax1.pcolormesh(Y, X, np.absolute(D - D1), edgecolor='none', lw=0.5)
         fig.colorbar(im1, cax=cax1, orientation='vertical')
 
     ax1.set_title('Log density')
@@ -66,6 +69,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filenames", nargs='+')
     args = parser.parse_args()
-
     db = load_checkpoint(args.filenames[0])
-    imshow_database(db)
+    db1 = load_checkpoint(args.filenames[1])
+    imshow_database(db, db1)
