@@ -83,8 +83,6 @@ def hse_diff(database, database1):
         difference.append(np.linalg.norm(D - D1, ord=2)) #error using L2
 
     scalar_diff = np.linalg.norm(difference, ord=2)
-    # scalar_diff = np.sum(difference)
-    # scalar_diff = np.linalg.norm(np.linalg.norm(difference, ord=2, axis=1), ord=2)
     return scalar_diff
 
 
@@ -93,7 +91,7 @@ def plot_error_vs_time(filenames, ax1):
     db = load_checkpoint(filenames[0])
     for dbx in filenames[1:]:
         time_series.append(hse_diff(db, load_checkpoint(dbx)))
-    ax1.plot(np.linspace(1, 100, 100), time_series)
+    ax1.plot(np.linspace(1, 100, 100), time_series, label=os.path.dirname(filenames[0]))
     ax1.set_title("Time series of HSE L2 error")
 
 
@@ -102,7 +100,6 @@ def plot_error_vs_resolution(path, ax1):
     for filedir in os.listdir(path):
         chkpts = sorted(glob.glob(path + filedir + '/chkpt.*'))
         plot_error_vs_time(chkpts, ax1)
-
 
 
 
@@ -116,6 +113,7 @@ if __name__ == "__main__":
 
     # plot_error_vs_time(args.filenames, ax1)
     plot_error_vs_resolution("./data/", ax1)
+    plt.legend()
     plt.show()
     # db1 = load_checkpoint(args.filenames[1])
     # imshow_database(db, db1)
