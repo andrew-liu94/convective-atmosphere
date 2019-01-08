@@ -103,6 +103,26 @@ def plot_error_vs_resolution(path, ax1):
 
 
 
+def scatter_error(filenames):
+    db0 = load_checkpoint(filenames[0])
+    db1 = load_checkpoint(filenames[1])
+    return hse_diff(db0, db1)
+
+
+
+def scatter_error_vs_resolution(path, ax1):
+    scatter    = []
+    resolution = []
+    for filedir in os.listdir(path):
+        chkpts = sorted(glob.glob(path + filedir + '/chkpt.*'))
+        scatter.append(scatter_error(chkpts))
+        resolution.append(int(filedir[1:]))
+    ax1.scatter(resolution, scatter / np.power(resolution, 2), marker="x")
+    ax1.plot(np.linspace(0,512,512), np.linspace(0,512,512)**(-1), ls="-", label="linear")
+    ax1.plot(np.linspace(0,512,512), np.linspace(0,512,512)**(-2), ls="--", label="quadratic")
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filenames", nargs='+')
@@ -110,10 +130,18 @@ if __name__ == "__main__":
 
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
+    ax1.set_title("Log L2 error vs resolution")
+    ax1.set_xlabel("Resolution (log N)")
+    ax1.set_ylabel("L2 Error")
+    ax1.set_yscale('log')
+    ax1.set_xscale('log')
+
 
     # plot_error_vs_time(args.filenames, ax1)
-    plot_error_vs_resolution("./data/", ax1)
+    # plot_error_vs_resolution("./data/", ax1)
+    scatter_error_vs_resolution("./data/", ax1)
     plt.legend()
+    plt.savefig('L2 error.png')
     plt.show()
     # db1 = load_checkpoint(args.filenames[1])
     # imshow_database(db, db1)
